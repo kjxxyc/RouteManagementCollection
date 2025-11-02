@@ -11,33 +11,62 @@
     </div>
   </div>
 
-  <!-- Filters -->
+  <!-- Advanced Search -->
   <div class="card mb-4">
     <div class="card-body">
-      <h5 class="card-title">Filtros</h5>
-      <div class="row g-3">
-        <div class="col-md-3">
-          <label class="form-label">Fecha Inicio</label>
-          <input type="date" class="form-control" [(ngModel)]="startDate" (change)="applyFilters()">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Fecha Fin</label>
-          <input type="date" class="form-control" [(ngModel)]="endDate" (change)="applyFilters()">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Estado</label>
-          <select class="form-select" [(ngModel)]="status" (change)="applyFilters()">
-            <option value="">Todos</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Liquidado">Liquidado</option>
-          </select>
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-          <button class="btn btn-secondary w-100" (click)="clearFilters()">
-            Limpiar Filtros
-          </button>
-        </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-search"></i> Búsqueda Avanzada
+        </h5>
+        <button class="btn btn-sm btn-outline-secondary" (click)="showAdvancedSearch.set(!showAdvancedSearch())">
+          <i [class.bi-chevron-down]="!showAdvancedSearch()" [class.bi-chevron-up]="showAdvancedSearch()"></i>
+          {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Filtros Avanzados
+        </button>
       </div>
+      
+      <!-- Quick Search -->
+      <div class="input-group mb-3">
+        <span class="input-group-text">
+          <i class="bi bi-search"></i>
+        </span>
+        <input 
+          type="text" 
+          class="form-control form-control-lg" 
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar por ID, nombre, descripción o estado...">
+        @if (searchTerm()) {
+          <button class="btn btn-outline-secondary" type="button" (click)="searchTerm.set('')">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        }
+      </div>
+
+      <!-- Advanced Filters -->
+      @if (showAdvancedSearch()) {
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" [(ngModel)]="startDate" (change)="applyFilters()">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" [(ngModel)]="endDate" (change)="applyFilters()">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" [(ngModel)]="status" (change)="applyFilters()">
+              <option value="">Todos</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Liquidado">Liquidado</option>
+            </select>
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-secondary w-100" (click)="clearFilters()">
+              <i class="bi bi-arrow-clockwise"></i> Limpiar Filtros
+            </button>
+          </div>
+        </div>
+      }
     </div>
   </div>
 
@@ -65,7 +94,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (route of routes(); track route.id) {
+              @for (route of filteredRoutes; track route.id) {
                 <tr>
                   <td>{{ route.id }}</td>
                   <td>{{ route.name }}</td>

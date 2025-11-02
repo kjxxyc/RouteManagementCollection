@@ -30,9 +30,23 @@ export class RoutesListComponent implements OnInit {
   startDate = signal<string>('');
   endDate = signal<string>('');
   status = signal<string>('');
+  searchTerm = signal<string>('');
+  showAdvancedSearch = signal(false);
 
   ngOnInit(): void {
     this.loadRoutes();
+  }
+
+  get filteredRoutes() {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.routes();
+    
+    return this.routes().filter(route =>
+      route.name.toLowerCase().includes(term) ||
+      route.description.toLowerCase().includes(term) ||
+      route.status.toLowerCase().includes(term) ||
+      route.id.toString().includes(term)
+    );
   }
 
   loadRoutes(): void {
