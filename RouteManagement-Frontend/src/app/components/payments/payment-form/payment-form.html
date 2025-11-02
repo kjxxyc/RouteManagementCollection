@@ -1,0 +1,103 @@
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-cash-coin"></i> Registro de Pago
+          </h4>
+        </div>
+        <div class="card-body p-4">
+          @if (loadingInvoices()) {
+            <div class="text-center py-3">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else {
+            <form (ngSubmit)="onSubmit()" #paymentForm="ngForm">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label fw-bold">Seleccionar Factura *</label>
+                  <select 
+                    class="form-select form-select-lg" 
+                    [(ngModel)]="formData().invoiceId"
+                    name="invoiceId"
+                    (change)="onInvoiceChange()"
+                    required
+                    [disabled]="loading()">
+                    <option [ngValue]="0">-- Seleccione una factura --</option>
+                    @for (invoice of invoices(); track invoice.id) {
+                      <option [ngValue]="invoice.id">
+                        {{ invoice.invoiceNumber }} - {{ invoice.customerName }} - {{ invoice.amount | currency }}
+                      </option>
+                    }
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Monto a Pagar *</label>
+                  <input 
+                    type="number" 
+                    class="form-control form-control-lg" 
+                    [(ngModel)]="formData().amount"
+                    name="amount"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    required
+                    [disabled]="loading()">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Método de Pago *</label>
+                  <select 
+                    class="form-select form-select-lg" 
+                    [(ngModel)]="formData().paymentMethod"
+                    name="paymentMethod"
+                    required
+                    [disabled]="loading()">
+                    <option value="">-- Seleccione --</option>
+                    @for (method of paymentMethods; track method) {
+                      <option [value]="method">{{ method }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label fw-bold">Referencia (Opcional)</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    [(ngModel)]="formData().reference"
+                    name="reference"
+                    placeholder="Número de referencia, cheque, etc."
+                    [disabled]="loading()">
+                </div>
+
+                <div class="col-md-12">
+                  <div class="d-grid gap-2">
+                    <button 
+                      type="submit" 
+                      class="btn btn-success btn-lg"
+                      [disabled]="!paymentForm.form.valid || loading()">
+                      @if (loading()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                      }
+                      <i class="bi bi-check-circle"></i> Registrar Pago
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div class="alert alert-info mt-4">
+              <i class="bi bi-info-circle"></i>
+              <strong>Nota:</strong> El pago quedará registrado en el sistema y se asociará a la factura seleccionada.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

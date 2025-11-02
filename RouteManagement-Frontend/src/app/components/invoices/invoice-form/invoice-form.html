@@ -1,0 +1,96 @@
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Factura</h5>
+        <button type="button" class="btn-close" (click)="onCancel()"></button>
+      </div>
+      <form (ngSubmit)="onSubmit()" #invoiceForm="ngForm">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Número de Factura *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="formData().invoiceNumber"
+                name="invoiceNumber"
+                required
+                [disabled]="loading()">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Monto *</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                [(ngModel)]="formData().amount"
+                name="amount"
+                step="0.01"
+                min="0"
+                required
+                [disabled]="loading()">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Nombre del Cliente *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="formData().customerName"
+                name="customerName"
+                required
+                [disabled]="loading()">
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Dirección del Cliente *</label>
+              <textarea 
+                class="form-control" 
+                [(ngModel)]="formData().customerAddress"
+                name="customerAddress"
+                rows="2"
+                required
+                [disabled]="loading()"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Ruta</label>
+              <select 
+                class="form-select" 
+                [(ngModel)]="formData().routeId"
+                name="routeId"
+                [disabled]="loading() || formData().isOutOfRoute">
+                <option [ngValue]="undefined">Sin ruta</option>
+                @for (route of routes(); track route.id) {
+                  <option [ngValue]="route.id">{{ route.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check mt-4">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  [(ngModel)]="formData().isOutOfRoute"
+                  name="isOutOfRoute"
+                  id="isOutOfRoute"
+                  [disabled]="loading()">
+                <label class="form-check-label" for="isOutOfRoute">
+                  Factura Fuera de Ruta
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="loading()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!invoiceForm.form.valid || loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Crear Factura
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

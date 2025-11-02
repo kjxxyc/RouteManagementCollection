@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RouteService } from '../../../services/route.service';
 import { ToastService } from '../../../services/toast.service';
+import { ExcelService } from '../../../services/excel.service';
 import { Route } from '../../../models/route.model';
 import { PagedResult } from '../../../models/paged-result.model';
 
@@ -17,6 +18,7 @@ import { PagedResult } from '../../../models/paged-result.model';
 export class RoutesListComponent implements OnInit {
   private routeService = inject(RouteService);
   private toastService = inject(ToastService);
+  private excelService = inject(ExcelService);
 
   routes = signal<Route[]>([]);
   loading = signal(true);
@@ -93,6 +95,26 @@ export class RoutesListComponent implements OnInit {
         }
       });
     }
+  }
+
+  exportToExcel(): void {
+    if (this.routes().length === 0) {
+      this.toastService.warning('No hay datos para exportar');
+      return;
+    }
+
+    const dataToExport = this.routes().map(route => ({
+      'ID': route.id,
+      'Nombre': route.name,
+      'Descripción': route.description,
+      'Fecha': route.date,
+      'Estado': route.status,
+      'Publicada': route.isPublished ? 'Sí' : 'No',
+      'Fecha Publicación': route.publishedAt || 'N/A'
+    }));
+
+    this.excelService.exportToExcel(dataToExport, 'rutas', 'Rutas');
+    this.toastService.success('Rutas exportadas a Excel');
   }
 
   get totalPages(): number {
