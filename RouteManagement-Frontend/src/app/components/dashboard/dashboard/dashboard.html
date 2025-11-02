@@ -1,0 +1,46 @@
+<div class="container-fluid py-4">
+  <h2 class="mb-4">Dashboard - KPIs</h2>
+  
+  @if (loading()) {
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="row">
+      <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <h5 class="card-title">Total Rutas</h5>
+            <h2 class="mb-0">{{ totalRoutes() }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <h5 class="card-title">Total Facturas</h5>
+            <h2 class="mb-0">{{ totalInvoices() }}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white">
+          <div class="card-body">
+            <h5 class="card-title">Pendientes</h5>
+            <h2 class="mb-0">--</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <h5 class="card-title">Liquidados</h5>
+            <h2 class="mb-0">--</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,40 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow" style="width: 100%; max-width: 400px;">
+    <div class="card-body p-4">
+      <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div class="mb-3">
+          <label for="username" class="form-label">Usuario</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="username" 
+            [(ngModel)]="credentials().username"
+            name="username"
+            required
+            [disabled]="loading()">
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            [(ngModel)]="credentials().password"
+            name="password"
+            required
+            [disabled]="loading()">
+        </div>
+        <button 
+          type="submit" 
+          class="btn btn-primary w-100"
+          [disabled]="!loginForm.form.valid || loading()">
+          @if (loading()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          Ingresar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
