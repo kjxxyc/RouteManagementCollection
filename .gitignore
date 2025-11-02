@@ -26,3 +26,26 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# .NET specific
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+.DS_Store
+[Aa]pp_[Dd]ata/
+[Ll]ocal[Hh]istory/
+.vs/
+.vscode/
+*.cache
+*.dll
+*.exe
+*.pdb
+project.lock.json
+project.fragment.lock.json
+artifacts/
