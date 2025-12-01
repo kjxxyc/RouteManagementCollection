@@ -1,0 +1,64 @@
+html,
+body,
+:host {
+	height: 100%;
+}
+
+
+.rmc-layout {
+	display: flex;
+	height: 100vh;
+}
+
+.rmc-sidebar-full {
+	width: 280px;
+}
+
+.rmc-logo {
+	width: 36px;
+	height: 36px;
+	border-radius: 0.5rem;
+	background-color: #f8f9fa;
+	color: #212529;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 1.25rem;
+}
+
+.rmc-avatar {
+	width: 36px;
+	height: 36px;
+}
+
+/* Tema oscuro */
+:root[data-bs-theme='dark'] .rmc-layout {
+	background-color: #212529;
+	color: #f8f9fa;
+}
+
+:root[data-bs-theme='dark'] .rmc-sidebar-full {
+	background-color: #212529;
+}
+
+:root[data-bs-theme='dark'] .rmc-router {
+	background-color: #343a40;
+	color: #f8f9fa;
+}
+
+/* Tema claro */
+:root[data-bs-theme='light'] .rmc-layout {
+	background-color: #f8f9fa;
+	color: #212529;
+}
+
+:root[data-bs-theme='light'] .rmc-sidebar-full {
+	background-color: #ffffff;
+}
+
+:root[data-bs-theme='light'] .rmc-router {
+	background-color: #ffffff;
+	color: #212529;
+}
+
