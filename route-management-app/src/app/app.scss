@@ -62,3 +62,17 @@ body,
 	color: #212529;
 }
 
+@media (max-width: 768px) {
+	.rmc-layout {
+		flex-direction: column;
+		height: auto;
+	}
+
+	.rmc-sidebar-full {
+		width: 100%;
+	}
+
+	.rmc-router {
+		width: 100%;
+	}
+}
