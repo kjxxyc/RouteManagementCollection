@@ -1,0 +1,226 @@
+<section class="list">
+  <div class="list__header">
+    <div>
+      <h1 class="list__title">FACTURA PENDIENTE DE PAGO | CON CONTRASEÑA</h1>
+      <p class="list__subtitle">Filtra por cliente o factura.</p>
+    </div>
+    <div class="list__controls">
+      <div class="list__search">
+        <input type="search" class="form-control form-control-sm" placeholder="Buscar por factura / cliente"
+          [ngModel]="search" (ngModelChange)="onSearchChange($event)" />
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="list__status">Cargando...</div>
+  <div *ngIf="error" class="list__error">{{ error }}</div>
+
+  <section class="list__filters">
+    <div class="list__filters-row">
+      <div class="list__field">
+        <label>Ruta</label>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="ruta" />
+      </div>
+      <div class="list__field">
+        <label>Fecha de ruta</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="fechaRuta" />
+      </div>
+      <div class="list__field">
+        <label>Fecha documento</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="fechaDocumento" />
+      </div>
+      <div class="list__actions">
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="buscar()">Buscar 🔎</button>
+      </div>
+      <div class="list__actions" *ngIf="!loading && !error">
+        <button type="button" class="btn btn-outline-success btn-sm" (click)="openPaymentModal()"
+          [disabled]="!selectedCount">Aplicar Pago <i class="bi bi-coin"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <div class="table-responsive" *ngIf="!loading && !error">
+    <table class="table table-sm align-middle mb-2">
+      <thead>
+        <tr>
+          <th>Check</th>
+          <th>Factura</th>
+          <th>Fecha documento</th>
+          <th># Cliente</th>
+          <th>Cliente</th>
+          <th>Dirección</th>
+          <th>Ruta</th>
+          <th>Día de pago</th>
+          <th>Monto</th>
+          <th>Contraseña</th>
+          <th>Fecha contraseña</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of pagedPayments">
+          <td>
+            <input type="checkbox" [checked]="isSelected(r)" (change)="toggleSelected(r)" />
+          </td>
+          <td>{{ r.no_Documento }}</td>
+          <td>{{ r.fecha_documento | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ r.id_SN }}</td>
+          <td>{{ r.nombre_SN }}</td>
+          <td>{{ r.direccion_SN }}</td>
+          <td>{{ r.noRuta }}</td>
+          <td>
+            <ng-container *ngIf="r.todos_Dias === 'Y'; else dias">
+              Todos los días
+            </ng-container>
+            <ng-template #dias>
+              <span *ngIf="r.lunes === 'Y'">Lunes </span>
+              <span *ngIf="r.martes === 'Y'">Martes </span>
+              <span *ngIf="r.miercoles === 'Y'">Miércoles </span>
+              <span *ngIf="r.jueves === 'Y'">Jueves </span>
+              <span *ngIf="r.viernes === 'Y'">Viernes </span>
+            </ng-template>
+          </td>
+          <td class="text-end">{{ r.total_Documento | number: '1.2-2' }}</td>
+          <td>{{ r.u_contrasenia }}</td>
+          <td>{{ r.u_fecha_contrasenia | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+
+        <tr *ngIf="!pagedPayments.length">
+          <td colspan="10" class="text-center text-muted">Sin resultados.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Forma de Pago -->
+  <div class="rm-modal-backdrop" *ngIf="showPaymentModal"></div>
+  <div class="rm-modal" *ngIf="showPaymentModal" role="dialog" aria-modal="true" aria-label="Agregar forma de pago">
+    <div class="rm-modal__header">
+      <h2 class="rm-modal__title">AGREGAR FORMA DE PAGO</h2>
+      <p class="text-muted">Se aplicará a {{ selectedCount }} factura(s).</p>
+      <button type="button" class="btn-close" aria-label="Cerrar" (click)="cancelPayment()"></button>
+    </div>
+    <div class="rm-modal__body">
+      <hr />
+      <ng-container *ngIf="selectedCount === 1; else multiplePaymentsTpl">
+        <div class="mt-3">
+          <form class="row g-3" novalidate>
+            <div class="col-md-3">
+              <label class="form-label">Factura</label>
+              <input class="form-control" [value]="selectedPayments[0]?.no_Documento" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Ruta</label>
+              <input class="form-control" [value]="selectedPayments[0]?.noRuta" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Fecha documento</label>
+              <input class="form-control" [value]="selectedPayments[0]?.fecha_documento | date: 'dd/MM/yyyy'"
+                readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Monto</label>
+              <input class="form-control text-end" [value]="selectedPayments[0]?.total_Documento | number: '1.2-2'"
+                readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label"># Cliente</label>
+              <input class="form-control" [value]="selectedPayments[0]?.id_SN" readonly />
+            </div>
+            <div class="col-md-9">
+              <label class="form-label">Cliente</label>
+              <input class="form-control" [value]="selectedPayments[0]?.nombre_SN" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Contraseña</label>
+              <input class="form-control" [value]="selectedPayments[0]?.u_contrasenia" readonly />
+            </div>
+          </form>
+        </div>
+      </ng-container>
+
+      <ng-template #multiplePaymentsTpl>
+        <div class="mt-3">
+          <h6 class="mb-2">Detalle de factura(s)</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Factura</th>
+                  <th># Cliente</th>
+                  <th>Cliente</th>
+                  <th>Ruta</th>
+                  <th class="text-end">Monto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of selectedPayments">
+                  <td>{{ r.no_Documento }}</td>
+                  <td>{{ r.id_SN }}</td>
+                  <td>{{ r.nombre_SN }}</td>
+                  <td>{{ r.noRuta }}</td>
+                  <td class="text-end">{{ r.total_Documento | number: '1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="mt-3">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Forma de pago</label>
+            <select class="form-select" [(ngModel)]="paymentForma">
+              <option [ngValue]="''">Selecciona...</option>
+              <option [ngValue]="'cheque'">Cheque</option>
+              <option [ngValue]="'deposito'">Depósito</option>
+              <option [ngValue]="'transferencia'">Transferencia</option>
+              <option [ngValue]="'efectivo'">Efectivo</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Monto</label>
+            <input type="number" step="0.01" class="form-control" [(ngModel)]="paymentMonto" />
+          </div>
+        </div>
+        <div class="text-danger mt-2" *ngIf="saveError">{{ saveError }}</div>
+      </div>
+    </div>
+    <div class="rm-modal__footer">
+      <button type="button" class="btn btn-outline-danger" (click)="cancelPayment()"
+        [disabled]="saving">Cancelar</button>
+      <button type="button" class="btn btn-success" (click)="confirmPayment()"
+        [disabled]="saving || !paymentForma.trim() || paymentMonto <= 0">
+        {{ saving ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+
+  <!--PAGINACIÓN-->
+  <div class="list__pagination row g-2 align-items-center" *ngIf="!loading && !error && filteredPayments.length">
+    <div class="col-2">
+      <select class="form-select form-select-sm" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="15">15</option>
+      </select>
+    </div>
+    <div class="col-2 d-flex align-items-center justify-content-center">
+      <span class="list__page-info">Total de Registros: {{ filteredPayments.length }}</span>
+    </div>
+    <div class="col-2 d-flex justify-content-center">
+      <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="changePage(-1)">
+        Anterior
+      </button>
+    </div>
+    <div class="col-2 d-flex align-items-center justify-content-center">
+      <span class="list__page-info">Pagina - {{ page }}</span>
+    </div>
+    <div class="col-2 d-flex justify-content-center">
+      <button type="button" class="btn btn-sm btn-outline-secondary w-100" (click)="changePage(1)">
+        Siguiente
+      </button>
+    </div>
+    <div class="col-2"></div>
+  </div>
+</section>

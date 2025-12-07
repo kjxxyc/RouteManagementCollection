@@ -1,3 +1,4 @@
+
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,7 +14,26 @@ export class ApiService {
     return this.http.get<unknown[]>(`${this.baseUrl}/legacy/PendingPass`);
   }
 
-  getRouteById(id: number): Observable<unknown> {
-    return this.http.get<unknown>(`${this.baseUrl}/legacy/${id}`);
+  getRoutesByDate(dateFrom: string, dateTo: string): Observable<unknown[]> {
+    const params = `dateFrom=${encodeURIComponent(dateFrom)}&dateTo=${encodeURIComponent(dateTo)}`;
+    return this.http.get<unknown[]>(`${this.baseUrl}/legacy/PendingPass/GetByDate?${params}`);
+  }
+
+  createRouteSnapshot(payload: unknown): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/legacy/Routes/snapshot`, payload);
+  }
+
+  createRoute(payload: unknown): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/legacy/Routes/route`, payload);
+  }
+
+  // Agrega forma de pago a un snapshot específico
+  addPaymentForm(noDocumento: number, payload: { montoPago: number; formaPago: string; usuario: string }): Observable<unknown> {
+    // El contrato ahora es PATCH /legacy/Routes/snapshot/{noDocumento}
+    return this.http.patch<unknown>(`${this.baseUrl}/legacy/Routes/snapshot/${noDocumento}`, payload);
+  }
+
+  getPendingPayments(): Observable<unknown[]> {
+    return this.http.get<unknown[]>(`${this.baseUrl}/legacy/PendingPayment`);
   }
 }

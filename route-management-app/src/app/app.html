@@ -2,7 +2,8 @@
   <div class="rmc-sidebar-full d-flex flex-column h-100">
     <div class="px-4 pt-3 pb-2 d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center gap-2">
-        <div class="rmc-logo bg-success">🔧</div>
+        
+        <div class="rmc-logo bg-warning bi bi-wrench-adjustable-circle-fill"></div>
         <span class="fs-4 fw-semibold">MASTER.</span>
       </div>
       <div class="d-flex align-items-center gap-2">
@@ -21,33 +22,39 @@
 
     <ul class="nav nav-pills flex-column mb-auto px-3 gap-1">
       <li class="nav-item">
-        <a class="nav-link d-flex align-items-center gap-2" href="#">
+        <a class="nav-link d-flex align-items-center gap-2" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
           <i class="bi bi-house-door"></i>
           <span>Inicio</span>
         </a>
       </li>
       <li>
-        <a class="nav-link d-flex align-items-center gap-2" href="#">
-          <i class="bi bi-speedometer2"></i>
+        <a class="nav-link d-flex align-items-center gap-2" [routerLink]="['/dashboard']" routerLinkActive="active">
+          <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
       </li>
       <li>
-        <a class="nav-link d-flex align-items-center gap-2" href="#">
-          <i class="bi bi-table"></i>
-          <span>Rutas</span>
+        <a class="nav-link d-flex align-items-center gap-2" [routerLink]="['/rutas']" routerLinkActive="active">
+          <i class="bi bi-receipt-cutoff"></i>
+          <span>Rutas Contraseña</span>
         </a>
       </li>
       <li>
-        <a class="nav-link d-flex align-items-center gap-2" href="#">
-          <i class="bi bi-grid"></i>
-          <span>Facturas</span>
+        <a class="nav-link d-flex align-items-center gap-2" [routerLink]="['/rutas']" routerLinkActive="active">
+          <i class="bi bi-receipt-cutoff"></i>
+          <span>Rutas Cobro</span>
         </a>
       </li>
       <li>
-        <a class="nav-link d-flex align-items-center gap-2" href="#">
-          <i class="bi bi-people"></i>
-          <span>Pagos</span>
+        <a class="nav-link d-flex align-items-center gap-2" [routerLink]="['/pagos']" routerLinkActive="active">
+          <i class="bi bi-cash-coin"></i>
+          <span>Seguimiento de Rutas</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link d-flex align-items-center gap-2" [routerLink]="['/reportes']" routerLinkActive="active">
+          <i class="bi bi-file-bar-graph-fill"></i>
+          <span>Reportes</span>
         </a>
       </li>
     </ul>
@@ -62,7 +69,7 @@
       />
       <div class="dropdown">
         <button
-          class="btn btn-sm btn-outline-light dropdown-toggle"
+          class="btn btn-sm btn-outline-success dropdown-toggle"
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
@@ -81,17 +88,7 @@
 
   <section class="rmc-router flex-grow-1">
     <div class="p-3">
-      <h2 class="h5 mb-3">Datos desde API /api/routes</h2>
-      <p *ngIf="loading()">Cargando...</p>
-      <p *ngIf="error()" class="text-danger">{{ error() }}</p>
-      <pre
-        *ngIf="!loading() && !error() && routes?.length"
-        class="bg-body-tertiary p-2 rounded small"
-      >
-{{ routes | json }}
-      </pre>
-      <p *ngIf="!loading() && !error() && !routes?.length">Sin datos aún.</p>
+      <router-outlet />
     </div>
-    <router-outlet />
   </section>
 </main>

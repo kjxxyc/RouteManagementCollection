@@ -1,0 +1,315 @@
+<section class="list">
+  <div class="list__header">
+    <div>
+      <h1 class="list__title">FACTURAS PENDIENTES</h1>
+      <p class="list__subtitle">Filtra por rango de fechas.</p>
+    </div> 
+
+    <div class="list__controls">
+      <div class="list__search">
+        <input
+          type="search"
+          class="form-control form-control-sm"
+          placeholder="Buscar por factura / cliente"
+          [ngModel]="search"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <section class="list__filters">
+    <div class="list__filters-row">
+      <div class="list__field">
+        <label>Fecha desde</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" />
+      </div>
+      <div class="list__field">
+        <label>Fecha hasta</label>
+        <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" />
+      </div>
+      <div class="list__actions">
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="buscar()">Buscar 🔎</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="!selectedCount" (click)="openCreateRouteModal()">Crear nueva Ruta</button>        
+        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="!selectedCount">Asignar a una Ruta</button>
+      </div>
+    </div>
+  </section>
+
+  <div *ngIf="loading" class="list__status">Cargando...</div>
+  <div *ngIf="error" class="list__error">{{ error }}</div>
+
+  <div class="table-responsive" *ngIf="!loading && !error">
+    <table class="table table-sm align-middle mb-2">
+      <thead>
+        <tr>
+          <th>Check</th>
+          <th>Factura</th>
+          <th>Fecha documento</th>
+          <th># Cliente</th>
+          <th>Cliente</th>
+          <th>Día de pago</th>
+          <th>Monto</th>
+          <th>Tipo</th>
+          <th>Comentario</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of pagedRoutes">
+          <td>
+            <input type="checkbox" [checked]="isSelected(r)" (change)="toggleSelected(r)" />
+          </td>
+          <td>{{ r.no_Documento }}</td>
+          <td>{{ r.fecha_documento | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ r.id_SN }}</td>
+          <td>{{ r.nombre_SN }}</td>
+          <td>{{ getDiasPago(r) }}</td>
+          <td class="text-end">{{ r.total_Documento | number: '1.2-2' }}</td>
+          <td>{{ r.tipo }}</td>
+          <td>{{ r.comentario }}</td>
+          <td>{{ r.estadoRegistro || 'Registrado' }}</td>
+        </tr>
+        <tr *ngIf="!pagedRoutes.length">
+          <td colspan="4" class="text-center text-muted">Sin resultados.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Crear Ruta -->
+  <div class="rm-modal-backdrop" *ngIf="showRouteModal"></div>
+  <div class="rm-modal" *ngIf="showRouteModal" role="dialog" aria-modal="true" aria-label="Crear Ruta">
+    <div class="rm-modal__header">
+      <h2 class="rm-modal__title">CREAR RUTA</h2>
+      <p class="text-muted">Se incluirán {{ selectedCount }} factura(s).</p>
+      <button type="button" class="btn-close" aria-label="Cerrar" (click)="cancelCreateRoute()"></button>
+    </div>
+    <div class="rm-modal__body">
+      <form class="row g-3" novalidate>
+        <div class="col-md-4">
+          <label class="form-label">Tipo de ruta</label>
+          <input class="form-control" [(ngModel)]="routeForm.tipoRuta" name="tipoRuta" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Estado</label>
+          <input class="form-control" [(ngModel)]="routeForm.estado" name="estado" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fecha ruta</label>
+          <input type="date" class="form-control" [(ngModel)]="routeForm.fechaRuta" name="fechaRuta" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Usuario</label>
+          <input class="form-control" [(ngModel)]="routeForm.usuario" name="usuario" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Usuario asignado</label>
+          <input class="form-control" [(ngModel)]="routeForm.usuarioAsignado" name="usuarioAsignado" />
+        </div>
+      </form>
+
+      <div class="mt-3">
+        <h6 class="mb-2">Facturas seleccionadas</h6>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Factura</th>
+                <th>Fecha doc.</th>
+                <th># Cliente</th>
+                <th>Cliente</th>
+                <th>Ruta</th>
+                <th class="text-end">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of selectedRoutes">
+                <td>{{ r.no_Documento }}</td>
+                <td>{{ r.fecha_documento | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ r.id_SN }}</td>
+                <td>{{ r.nombre_SN }}</td>
+                <td>{{ r.noRuta }}</td>
+                <td class="text-end">{{ r.total_Documento | number: '1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="text-danger mt-2" *ngIf="routeError">{{ routeError }}</div>
+    </div>
+    <div class="rm-modal__footer">
+      <button type="button" class="btn btn-outline-danger" (click)="cancelCreateRoute()" [disabled]="routeSaving">Cancelar</button>
+      <button type="button" class="btn btn-success" (click)="confirmCreateRoute()" [disabled]="routeSaving">
+        {{ routeSaving ? 'Creando…' : 'Crear ruta' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Agregar Contraseña -->
+  <div class="rm-modal-backdrop" *ngIf="showPassModal"></div>
+  <div class="rm-modal" *ngIf="showPassModal" role="dialog" aria-modal="true" aria-label="Agregar contraseña">
+    <div class="rm-modal__header">
+      <h2 class="rm-modal__title">AGREGAR CONTRASEÑA</h2>
+      <p class="text-muted">Se aplicará a {{ selectedCount }} factura(s).</p>
+      <button type="button" class="btn-close" aria-label="Cerrar" (click)="cancelPass()"></button>
+    </div>
+    <div class="rm-modal__body">
+      <hr />
+      <!-- Detalles: formulario estilo Bootstrap, solo lectura cuando hay una factura -->
+      <ng-container *ngIf="selectedCount === 1; else multipleSelectedTpl">
+        <div class="mt-3">
+          <form class="row g-3" novalidate>
+            <div class="col-md-3">
+              <label class="form-label">Factura</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.no_Documento" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Ruta</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.noRuta" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Fecha documento</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.fecha_documento | date: 'dd/MM/yyyy'" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Monto</label>
+              <input class="form-control text-end" [value]="selectedRoutes[0]?.total_Documento | number: '1.2-2'" readonly />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label"># Cliente</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.id_SN" readonly />
+            </div>
+            <div class="col-md-9">
+              <label class="form-label">Cliente</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.nombre_SN" readonly />
+            </div>
+
+            
+            <div class="col-md-3">
+              <label class="form-label">Día de pago</label>
+              <input class="form-control" [value]="getDiasPago(selectedRoutes[0])" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Tipo</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.tipo" readonly />
+            </div>
+
+            <div class="col-6">
+              <label class="form-label">Comentario</label>
+              <input class="form-control" [value]="selectedRoutes[0]?.comentario" readonly />
+            </div>
+          </form>
+        </div>
+      </ng-container>
+
+      <!-- Plantilla para múltiples facturas: tabla resumen -->
+      <ng-template #multipleSelectedTpl>
+        <div class="mt-3">
+          <h6 class="mb-2">Detalle de factura(s)</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Factura</th>
+                  <th>Fecha doc.</th>
+                  <th># Cliente</th>
+                  <th>Cliente</th>
+                  <th>Ruta</th>
+                  <th>Día de pago</th>
+                  <th class="text-end">Monto</th>
+                  <th>Tipo</th>
+                  <th>Comentario</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of selectedRoutes">
+                  <td>{{ r.no_Documento }}</td>
+                  <td>{{ r.fecha_documento | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ r.id_SN }}</td>
+                  <td>{{ r.nombre_SN }}</td>
+                  <td>{{ r.noRuta }}</td>
+                  <td>{{ getDiasPago(r) }}</td>
+                  <td class="text-end">{{ r.total_Documento | number: '1.2-2' }}</td>
+                  <td>{{ r.tipo }}</td>
+                  <td>{{ r.comentario }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Sección para modificar la contraseña (al final) -->
+      <div class="mt-3">
+        <label class="form-label">Modificar contraseña</label>
+        <input
+          type="text"
+          class="form-control"
+          [class.is-invalid]="!passValue.trim() || passValue.length > maxPassLen"
+          placeholder="Ingresa la contraseña"
+          autocomplete="off"
+          [attr.maxlength]="maxPassLen"
+          [(ngModel)]="passValue"
+        />
+        <div class="form-text">{{ passValue.length }}/{{ maxPassLen }} caracteres</div>
+        <div class="invalid-feedback" *ngIf="!passValue.trim()">La contraseña es requerida.</div>
+        <div class="invalid-feedback" *ngIf="passValue.length > maxPassLen">Máximo {{ maxPassLen }} caracteres.</div>
+        <div class="text-danger mt-2" *ngIf="saveError">{{ saveError }}</div>
+      </div>
+    </div>
+    <div class="rm-modal__footer">
+      <button type="button" class="btn btn-outline-danger" (click)="cancelPass()" [disabled]="saving">Cancelar</button>
+      <button type="button" class="btn btn-success" (click)="confirmAddPass()" [disabled]="saving || !passValue.trim() || passValue.length > maxPassLen">
+        {{ saving ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+
+  <!--PAGINACIÓN-->
+    <div class="list__pagination row g-2 align-items-center" *ngIf="!loading && !error && filteredRoutes.length">
+      
+
+      <div class="col-2">
+        <select
+          class="form-select form-select-sm"
+          [ngModel]="pageSize"
+          (ngModelChange)="onPageSizeChange($event)"
+        >
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="15">15</option>
+        </select>
+      </div>
+      <div class="col-2 d-flex align-items-center justify-content-center">
+        <span class="list__page-info">Total de Registros: {{ filteredRoutes.length }}</span>
+      </div>
+
+      <div class="col-2 d-flex justify-content-center">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary w-100"
+          (click)="changePage(-1)"
+        >
+          Anterior
+        </button>
+      </div>
+
+      <div class="col-2 d-flex align-items-center justify-content-center">
+        <span class="list__page-info">Pagina - {{ page }}</span>
+      </div>
+
+      <div class="col-2 d-flex justify-content-center">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary w-100"
+          (click)="changePage(1)"
+        >
+          Siguiente
+        </button>
+      </div>
+
+      <div class="col-2"></div>
+    </div>  
+</section>

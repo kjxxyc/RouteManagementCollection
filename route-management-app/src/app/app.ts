@@ -1,11 +1,11 @@
 import { Component, OnInit, effect, signal } from '@angular/core';
-import { CommonModule, JsonPipe } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { ApiService } from './api.service';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, JsonPipe],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -20,7 +20,7 @@ export class App implements OnInit {
 
   constructor(private readonly api: ApiService) {
     effect(() => {
-      const theme = this.isDarkTheme() ? 'dark' : 'light';
+      const theme = this.isDarkTheme() ? 'light' : 'dark';
       document.documentElement.setAttribute('data-bs-theme', theme);
     });
   }
