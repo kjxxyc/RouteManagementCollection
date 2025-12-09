@@ -1,0 +1,155 @@
+<div class="container-fluid py-4">
+  <h2 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard - KPIs y Métricas</h2>
+  
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border spinner-border-lg" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3 text-muted">Cargando métricas del sistema...</p>
+    </div>
+  } @else {
+    <!-- Primary KPIs -->
+    <div class="row mb-4">
+      <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0">Total Rutas</h6>
+                <h2 class="mb-0 mt-2">{{ totalRoutes() }}</h2>
+              </div>
+              <i class="bi bi-signpost fs-1 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0">Total Facturas</h6>
+                <h2 class="mb-0 mt-2">{{ totalInvoices() }}</h2>
+              </div>
+              <i class="bi bi-receipt fs-1 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0">Rutas Pendientes</h6>
+                <h2 class="mb-0 mt-2">{{ pendingRoutes() }}</h2>
+                <small>{{ pendingPercentage() }}% del total</small>
+              </div>
+              <i class="bi bi-clock-history fs-1 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title mb-0">Rutas Liquidadas</h6>
+                <h2 class="mb-0 mt-2">{{ liquidatedRoutes() }}</h2>
+                <small>{{ completionRate() }}% completado</small>
+              </div>
+              <i class="bi bi-check-circle fs-1 opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary KPIs -->
+    <div class="row mb-4">
+      <div class="col-md-4 mb-3">
+        <div class="card border-danger h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title text-danger">Facturas Fuera de Ruta</h6>
+                <h2 class="mb-0">{{ outOfRouteInvoices() }}</h2>
+              </div>
+              <i class="bi bi-exclamation-triangle fs-1 text-danger opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card border-primary h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title text-primary">Total Pagos</h6>
+                <h2 class="mb-0">{{ totalPayments() }}</h2>
+              </div>
+              <i class="bi bi-cash-coin fs-1 text-primary opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card border-success h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title text-success">Ingresos Totales</h6>
+                <h2 class="mb-0">{{ totalRevenue() | currency }}</h2>
+              </div>
+              <i class="bi bi-currency-dollar fs-1 text-success opacity-50"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Progreso de Liquidación</h5>
+            <div class="progress" style="height: 30px;">
+              <div class="progress-bar bg-success" 
+                   role="progressbar" 
+                   [style.width.%]="completionRate()"
+                   [attr.aria-valuenow]="completionRate()" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+                {{ completionRate() }}% Liquidado
+              </div>
+              <div class="progress-bar bg-warning" 
+                   role="progressbar" 
+                   [style.width.%]="pendingPercentage()"
+                   [attr.aria-valuenow]="pendingPercentage()" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+                {{ pendingPercentage() }}% Pendiente
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle"></i> 
+                  {{ liquidatedRoutes() }} de {{ totalRoutes() }} rutas completadas
+                </small>
+              </div>
+              <div class="col-md-6 text-end">
+                <small class="text-muted">
+                  Última actualización: {{ currentDate | date:'short' }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

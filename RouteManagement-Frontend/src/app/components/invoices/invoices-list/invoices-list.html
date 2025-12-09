@@ -1,0 +1,124 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Facturas</h2>
+    <button class="btn btn-primary" (click)="showForm.set(true)">
+      <i class="bi bi-plus-circle"></i> Nueva Factura
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Filtros</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Ruta</label>
+          <select class="form-select" [(ngModel)]="routeId" (change)="applyFilters()">
+            <option [ngValue]="undefined">Todas</option>
+            @for (route of routes(); track route.id) {
+              <option [ngValue]="route.id">{{ route.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" [(ngModel)]="isOutOfRoute" (change)="applyFilters()">
+            <option [ngValue]="undefined">Todas</option>
+            <option [ngValue]="false">En Ruta</option>
+            <option [ngValue]="true">Fuera de Ruta</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button class="btn btn-secondary w-100" (click)="clearFilters()">
+            Limpiar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Número</th>
+                <th>Cliente</th>
+                <th>Dirección</th>
+                <th>Monto</th>
+                <th>Tipo</th>
+                <th>Ruta</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invoice of invoices(); track invoice.id) {
+                <tr>
+                  <td>{{ invoice.id }}</td>
+                  <td>{{ invoice.invoiceNumber }}</td>
+                  <td>{{ invoice.customerName }}</td>
+                  <td>{{ invoice.customerAddress }}</td>
+                  <td>{{ invoice.amount | currency }}</td>
+                  <td>
+                    <span class="badge" [class.bg-warning]="invoice.isOutOfRoute" 
+                          [class.bg-info]="!invoice.isOutOfRoute">
+                      {{ invoice.isOutOfRoute ? 'Fuera de Ruta' : 'En Ruta' }}
+                    </span>
+                  </td>
+                  <td>{{ invoice.routeId || 'N/A' }}</td>
+                  <td>{{ invoice.createdAt | date:'short' }}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-danger" (click)="deleteInvoice(invoice.id)" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="9" class="text-center">No se encontraron facturas</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1) {
+          <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <a class="page-link" (click)="onPageChange(currentPage() - 1)" tabindex="-1">Anterior</a>
+              </li>
+              @for (page of pages; track page) {
+                <li class="page-item" [class.active]="currentPage() === page">
+                  <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages">
+                <a class="page-link" (click)="onPageChange(currentPage() + 1)">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modal Form -->
+@if (showForm()) {
+  <app-invoice-form (close)="showForm.set(false); loadInvoices()"></app-invoice-form>
+}
